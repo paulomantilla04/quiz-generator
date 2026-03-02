@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
-import HistoryView from '../../components/HistoryView'
+import HistoryView from '@/components/HistoryView'
 
 export default async function HistoryPage() {
   const supabase = await createClient()

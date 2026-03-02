@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '../lib/supabase/client'
+import { createClient } from '../app/lib/supabase/client'
 
 export default function UploadButton() {
   const [uploading, setUploading] = useState(false)

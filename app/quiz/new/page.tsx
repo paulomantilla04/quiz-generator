@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../../lib/supabase/server'
-import QuizSetup from '../../components/QuizSetup'
+import QuizSetup from '@/components/QuizSetup'
 
 export default async function NewQuizPage({
   searchParams,

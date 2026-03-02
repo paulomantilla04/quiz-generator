@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '../../lib/supabase/client'
+import Image from 'next/image'
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('')
@@ -45,7 +46,15 @@ export default function SignupPage() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <div style={styles.logo}>⚡</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <Image 
+            src="/logo.svg" 
+            alt="Quiz Generator Logo" 
+            width={200} 
+            height={200} 
+            priority
+          />
+        </div>
         <h1 style={styles.title}>Crea una cuenta</h1>
         <p style={styles.subtitle}>Empieza a estudiar mejor hoy!</p>
 

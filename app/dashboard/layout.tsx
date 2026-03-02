@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../lib/supabase/server'
 import Image from 'next/image'
-import logo from '../../public/singleLogo.svg'
+import logo from '@/public/singleLogo.svg'
 
 export default async function DashboardLayout({
   children,

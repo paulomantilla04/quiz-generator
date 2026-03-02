@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../lib/supabase/server'
-import UploadButton from '../components/UploadButton'
-import MaterialCard from '../components/MaterialCard'
+import UploadButton from '@/components/UploadButton'
+import MaterialCard from '@/components/MaterialCard'
 
 export default async function DashboardPage() {
   const supabase = await createClient()

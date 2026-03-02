@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '../lib/supabase/client'
+import { createClient } from '../app/lib/supabase/client'
 import Image from 'next/image'
-import logo from '../../public/singleLogo.svg'
+import logo from '@/public/singleLogo.svg'
 import { FaTrashAlt } from "react-icons/fa";
 
 interface Material {

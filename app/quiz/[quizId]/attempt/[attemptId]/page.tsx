@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
-import QuizSession from '../../../../components/QuizSession'
+import QuizSession from '@/components/QuizSession'
 
 export default async function AttemptPage({
   params,

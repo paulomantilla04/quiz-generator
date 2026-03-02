@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../../../../lib/supabase/server'
-import ResultsView from '../../../../components/ResultsView'
+import ResultsView from '@/components/ResultsView'
 
 export default async function ResultsPage({
   params,

@@ -5,8 +5,8 @@ import './globals.css'
 const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'QuizMind — Study Smarter',
-  description: 'Upload your lecture notes and get an adaptive quiz that grows with you.',
+  title: 'Quizzes Fit',
+  description: 'Upload your lecture notes and get a quiz that grows with you.',
 }
 
 export default function RootLayout({
