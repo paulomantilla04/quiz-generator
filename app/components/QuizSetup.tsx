@@ -69,14 +69,14 @@ export default function QuizSetup({ material }: { material: Material }) {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <a href="/dashboard" style={styles.back}>← Back</a>
+        <a href="/dashboard" style={styles.back}>← Volver</a>
 
         <div style={styles.icon}>🧠</div>
-        <h1 style={styles.title}>Ready to quiz?</h1>
+        <h1 style={styles.title}>Listo para el quiz?</h1>
         <p style={styles.subtitle}>{material.title}</p>
 
         <div style={styles.section}>
-          <label style={styles.label}>Number of questions</label>
+          <label style={styles.label}>Número de preguntas</label>
           <div style={styles.options}>
             {[5, 10, 20, 30].map(n => (
               <button
@@ -97,7 +97,7 @@ export default function QuizSetup({ material }: { material: Material }) {
 
         <div style={styles.infoBox}>
           <p style={styles.infoText}>
-            🎯 <strong>Adaptive mode on</strong> — questions will get harder or easier based on your performance in real time.
+            🎯 <strong>Modo adaptativo encendido</strong> — las preguntas se pondrán más fáciles o más difíciles en base a tu rendimiento en tiempo real.
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function QuizSetup({ material }: { material: Material }) {
             cursor: loading ? 'not-allowed' : 'pointer',
           }}
         >
-          {loading ? 'Setting up quiz...' : 'Start Quiz →'}
+          {loading ? 'Configurando Quiz...' : 'Iniciar Quiz →'}
         </button>
       </div>
     </div>

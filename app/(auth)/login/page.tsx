@@ -33,8 +33,8 @@ export default function LoginPage() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.logo}>⚡</div>
-        <h1 style={styles.title}>Welcome back</h1>
-        <p style={styles.subtitle}>Log in to continue studying</p>
+        <h1 style={styles.title}>Hola de nuevo!</h1>
+        <p style={styles.subtitle}>Inicia sesión para seguir estudiando</p>
 
         <form onSubmit={handleLogin} style={styles.form}>
           <div style={styles.field}>
@@ -52,7 +52,7 @@ export default function LoginPage() {
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Password</label>
+            <label style={styles.label}>Contraseña</label>
             <input
               type="password"
               value={password}
@@ -72,13 +72,13 @@ export default function LoginPage() {
             opacity: loading ? 0.7 : 1,
             cursor: loading ? 'not-allowed' : 'pointer',
           }}>
-            {loading ? 'Logging in...' : 'Log in'}
+            {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </button>
         </form>
 
         <p style={styles.footer}>
-          Dont have an account?{' '}
-          <Link href="/signup" style={styles.link}>Sign up</Link>
+          Aún no tienes una cuenta?{' '}
+          <Link href="/signup" style={styles.link}>Regístrate</Link>
         </p>
       </div>
     </div>

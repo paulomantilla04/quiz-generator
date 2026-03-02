@@ -51,10 +51,10 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
     <div style={styles.container}>
       <div style={styles.header}>
         <div>
-          <h1 style={styles.title}>History</h1>
+          <h1 style={styles.title}>Historial</h1>
           <p style={styles.subtitle}>
             {attempts.length
-              ? `${attempts.length} completed quiz${attempts.length > 1 ? "zes" : ""}`
+              ? `${attempts.length} quiz${attempts.length > 1 ? "zes" : ""} completado${attempts.length > 1 ? "s" : ""}`
               : "No quizzes completed yet"}
           </p>
         </div>
@@ -65,23 +65,23 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
           {/* Stats row */}
           <div style={styles.statsRow}>
             <div style={styles.statCard}>
-              <p style={styles.statLabel}>Quizzes taken</p>
+              <p style={styles.statLabel}>Quizzes tomados</p>
               <p style={styles.statValue}>{attempts.length}</p>
             </div>
             <div style={styles.statCard}>
-              <p style={styles.statLabel}>Average score</p>
+              <p style={styles.statLabel}>Puntuación promedio</p>
               <p style={{ ...styles.statValue, color: scoreColor(avgScore) }}>
                 {avgScore}%
               </p>
             </div>
             <div style={styles.statCard}>
-              <p style={styles.statLabel}>Best score</p>
+              <p style={styles.statLabel}>Mejor puntuación</p>
               <p style={{ ...styles.statValue, color: scoreColor(bestScore) }}>
                 {bestScore}%
               </p>
             </div>
             <div style={styles.statCard}>
-              <p style={styles.statLabel}>Materials studied</p>
+              <p style={styles.statLabel}>Materiales estudiados</p>
               <p style={styles.statValue}>
                 {new Set(attempts.map((a) => a.quizzes?.materials?.id)).size}
               </p>
@@ -90,7 +90,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
 
           {/* Score timeline */}
           <div style={styles.timelineCard}>
-            <p style={styles.timelineTitle}>Score over time</p>
+            <p style={styles.timelineTitle}>Historial de puntuación</p>
             <div style={styles.chart}>
               {[...attempts].reverse().map((attempt, i) => {
                 const height = `${Math.max(attempt.score, 4)}%`;
@@ -128,10 +128,10 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                 }}
               >
                 {f === "all"
-                  ? "All"
+                  ? "Todos"
                   : f === "good"
-                    ? "✓ Passed (≥70%)"
-                    : "✗ Failed (<70%)"}
+                    ? "✓ Aprobados (≥70%)"
+                    : "✗ Reprobados (<70%)"}
               </button>
             ))}
           </div>
@@ -166,7 +166,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                     <div>
                       <p style={styles.attemptTitle}>
                         {attempt.quizzes?.materials?.title ??
-                          "Unknown material"}
+                          "Material desconocido"}
                       </p>
                       <p style={styles.attemptMeta}>
                         {attempt.total_questions} questions ·{" "}
@@ -196,7 +196,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                       }
                       style={styles.reviewButton}
                     >
-                      Review
+                      Revisar
                     </a>
                     <a
                       href={
@@ -204,7 +204,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                       }
                       style={styles.retakeButton}
                     >
-                      Retake
+                      Hacer de nuevo
                     </a>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
 
             {filtered.length === 0 && (
               <div style={styles.empty}>
-                <p style={styles.emptyText}>No quizzes match this filter.</p>
+                <p style={styles.emptyText}>Ningún quiz coincide con este filtro.</p>
               </div>
             )}
           </div>
@@ -223,12 +223,12 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
       {attempts.length === 0 && (
         <div style={styles.emptyState}>
           <div style={styles.emptyIcon}>📊</div>
-          <h3 style={styles.emptyTitle}>No history yet</h3>
+          <h3 style={styles.emptyTitle}>Sin historial aún</h3>
           <p style={styles.emptyText}>
-            Complete your first quiz to see your progress here.
+            Completa tu primer quiz para ver tu progreso aquí.
           </p>
           <a href="/dashboard" style={styles.dashboardLink}>
-            Go to Dashboard →
+            Ir al dashboard →
           </a>
         </div>
       )}

@@ -20,7 +20,7 @@ export default function SignupPage() {
     setError('')
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+      setError('La contraseña debe tener al menos 6 carácteres')
       setLoading(false)
       return
     }
@@ -46,17 +46,17 @@ export default function SignupPage() {
     <div style={styles.container}>
       <div style={styles.card}>
         <div style={styles.logo}>⚡</div>
-        <h1 style={styles.title}>Create account</h1>
-        <p style={styles.subtitle}>Start studying smarter today</p>
+        <h1 style={styles.title}>Crea una cuenta</h1>
+        <p style={styles.subtitle}>Empieza a estudiar mejor hoy!</p>
 
         <form onSubmit={handleSignup} style={styles.form}>
           <div style={styles.field}>
-            <label style={styles.label}>Full name</label>
+            <label style={styles.label}>Nombre y Apellido</label>
             <input
               type="text"
               value={fullName}
               onChange={e => setFullName(e.target.value)}
-              placeholder="Alex Johnson"
+              placeholder="John Doe"
               required
               style={styles.input}
               onFocus={e => e.target.style.borderColor = 'var(--primary)'}
@@ -79,7 +79,7 @@ export default function SignupPage() {
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Password</label>
+            <label style={styles.label}>Contraseña</label>
             <input
               type="password"
               value={password}
@@ -99,13 +99,13 @@ export default function SignupPage() {
             opacity: loading ? 0.7 : 1,
             cursor: loading ? 'not-allowed' : 'pointer',
           }}>
-            {loading ? 'Creating account...' : 'Create account'}
+            {loading ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>
         </form>
 
         <p style={styles.footer}>
-          Already have an account?{' '}
-          <Link href="/login" style={styles.link}>Log in</Link>
+          Ya tienes una cuenta?{' '}
+          <Link href="/login" style={styles.link}>Inicia sesión</Link>
         </p>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '../lib/supabase/server'
+import Image from 'next/image'
+import logo from '../../public/singleLogo.svg'
 
 export default async function DashboardLayout({
   children,
@@ -15,12 +17,16 @@ export default async function DashboardLayout({
     <div style={styles.wrapper}>
       <nav style={styles.nav}>
         <div style={styles.navInner}>
-          <span style={styles.navLogo}>⚡ QuizMind</span>
+          <div style={styles.logoContainer}>
+            <Image src={logo} width={70} height={70} alt='logo' />
+            <span className='font-medium'>Quiz <span className='font-black'>Fit</span></span>
+          </div>
+          
           <div style={styles.navLinks}>
             <a href="/dashboard" style={styles.navLink}>Dashboard</a>
-            <a href="/dashboard/history" style={styles.navLink}>History</a>
+            <a href="/dashboard/history" style={styles.navLink}>Historial</a>
             <form action="/auth/signout" method="post">
-              <button type="submit" style={styles.navButton}>Sign out</button>
+              <button type="submit" style={styles.navButton}>Cerrar sesión</button>
             </form>
           </div>
         </div>
@@ -52,6 +58,12 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  // Agregamos este nuevo estilo para alinear la imagen y el texto
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem', // Espacio entre el logo y el texto
   },
   navLogo: {
     fontWeight: '700',

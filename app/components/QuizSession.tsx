@@ -237,11 +237,11 @@ export default function QuizSession({
       <div style={styles.main}>
         <div style={styles.meta}>
           <span style={styles.metaText}>
-            Question {Math.min(answeredCount + 1, totalQuestions)} of {totalQuestions}
+            Pregunta {Math.min(answeredCount + 1, totalQuestions)} de {totalQuestions}
           </span>
           {performance.weakTopics.length > 0 && (
             <span style={styles.weakTag}>
-              📌 Focusing on weak areas
+              📌 Enfocando en puntos débiles
             </span>
           )}
         </div>

@@ -26,10 +26,10 @@ export default async function DashboardPage() {
     <div style={styles.container}>
       <div style={styles.header}>
         <div>
-          <h1 style={styles.title}>Hey, {firstName} 👋</h1>
+          <h1 style={styles.title}>Hola, {firstName}!</h1>
           <p style={styles.subtitle}>
             {materials?.length
-              ? `You have ${materials.length} study material${materials.length > 1 ? 's' : ''}. Ready to quiz?`
+              ? `Tienes ${materials.length} material${materials.length > 1 ? 's' : ''} de estudio. Listo para un quiz?`
               : 'Upload your first PDF to get started.'}
           </p>
         </div>
@@ -45,9 +45,9 @@ export default async function DashboardPage() {
       ) : (
         <div style={styles.empty}>
           <div style={styles.emptyIcon}>📄</div>
-          <h3 style={styles.emptyTitle}>No materials yet</h3>
+          <h3 style={styles.emptyTitle}>No hay materiales aún</h3>
           <p style={styles.emptyText}>
-            Upload a lecture PDF and we'll generate an adaptive quiz from it.
+            Sube algún PDF y generaremos un Quiz Adaptativo.
           </p>
         </div>
       )}

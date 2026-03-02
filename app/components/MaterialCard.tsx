@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '../lib/supabase/client'
+import Image from 'next/image'
+import logo from '../../public/singleLogo.svg'
+import { FaTrashAlt } from "react-icons/fa";
 
 interface Material {
   id: string
@@ -20,7 +23,7 @@ export default function MaterialCard({ material }: { material: Material }) {
   })
 
   async function handleDelete() {
-    if (!confirm('Delete this material and all its quizzes?')) return
+    if (!confirm('Estás seguro de eliminar este material y todos sus quizzes?')) return
     setDeleting(true)
     const supabase = createClient()
     await supabase.from('materials').delete().eq('id', material.id)
@@ -29,21 +32,21 @@ export default function MaterialCard({ material }: { material: Material }) {
 
   return (
     <div style={styles.card}>
-      <div style={styles.icon}>📄</div>
+      <div style={styles.icon}><Image src={logo} width={60} height={60} alt='logo' /></div>
       <div style={styles.content}>
         <h3 style={styles.title}>{material.title}</h3>
-        <p style={styles.date}>Uploaded {date}</p>
+        <p style={styles.date}>Fecha de subida: {date}</p>
       </div>
       <div style={styles.actions}>
         <a href={`/quiz/new?material=${material.id}`} style={styles.quizButton}>
-          Start Quiz
+          Iniciar Quiz
         </a>
         <button
           onClick={handleDelete}
           disabled={deleting}
           style={styles.deleteButton}
         >
-          {deleting ? '...' : '🗑'}
+          {deleting ? '...' : <FaTrashAlt/>}
         </button>
       </div>
     </div>
@@ -95,12 +98,12 @@ const styles: Record<string, React.CSSProperties> = {
     transition: 'background 0.2s',
   },
   deleteButton: {
-    background: 'transparent',
+    background: 'red',
     border: '1px solid var(--card-border)',
     borderRadius: '8px',
     padding: '0.6rem 0.75rem',
     cursor: 'pointer',
     fontSize: '1rem',
-    color: 'var(--muted)',
+    color: 'white',
   },
 }

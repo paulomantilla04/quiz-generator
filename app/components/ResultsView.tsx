@@ -68,7 +68,7 @@ export default function ResultsView({
       {/* Score card */}
       <div style={styles.scoreCard}>
         <div style={styles.emoji}>{scoreEmoji}</div>
-        <h1 style={styles.title}>Quiz Complete!</h1>
+        <h1 style={styles.title}>Quiz Completado!</h1>
         <p style={styles.subtitle}>{quiz.title}</p>
 
         <div style={{ ...styles.scoreBig, color: scoreColor }}>
@@ -76,12 +76,12 @@ export default function ResultsView({
         </div>
 
         <p style={styles.scoreDetail}>
-          {correct} out of {total} correct
+          {correct} de {total} correctas
         </p>
 
         {attempt.performance_data.weakTopics.length > 0 && (
           <div style={styles.weakBox}>
-            <p style={styles.weakTitle}>📌 Topics to review:</p>
+            <p style={styles.weakTitle}>📌 Temas revisados:</p>
             <div style={styles.weakTags}>
               {attempt.performance_data.weakTopics.map(topic => (
                 <span key={topic} style={styles.weakTag}>{topic}</span>
@@ -95,7 +95,7 @@ export default function ResultsView({
             onClick={() => router.push(`/quiz/new?material=${quiz.material_id}`)}
             style={styles.primaryButton}
           >
-            Retake Quiz
+            Retomar Quiz
           </button>
           <button
             onClick={() => router.push('/dashboard')}
@@ -108,7 +108,7 @@ export default function ResultsView({
 
       {/* Question review */}
       <div style={styles.reviewSection}>
-        <h2 style={styles.reviewTitle}>Question Review</h2>
+        <h2 style={styles.reviewTitle}>Revisión de preguntas</h2>
         <div style={styles.questionList}>
           {questions.map((q, i) => {
             const answer = answerMap.get(q.id)
@@ -125,7 +125,7 @@ export default function ResultsView({
                 }}
               >
                 <div style={styles.questionHeader}>
-                  <span style={styles.questionNum}>Q{i + 1}</span>
+                  <span style={styles.questionNum}>P{i + 1}</span>
                   <span style={{
                     ...styles.resultBadge,
                     background: wasCorrect
@@ -133,7 +133,7 @@ export default function ResultsView({
                       : 'rgba(255, 107, 107, 0.1)',
                     color: wasCorrect ? 'var(--success)' : 'var(--error)',
                   }}>
-                    {wasCorrect ? '✓ Correct' : '✗ Incorrect'}
+                    {wasCorrect ? '✓ Correcto' : '✗ Incorrecto'}
                   </span>
                 </div>
 
@@ -143,10 +143,10 @@ export default function ResultsView({
                 {!wasCorrect && answer && (
                   <div style={styles.answerDetail}>
                     <p style={styles.wrongAnswer}>
-                      Your answer: {answer.user_answer}
+                      Tu respuesta: {answer.user_answer}
                     </p>
                     <p style={styles.correctAnswer}>
-                      Correct: {q.correct_answer}
+                      Respuesta correcta: {q.correct_answer}
                     </p>
                   </div>
                 )}
