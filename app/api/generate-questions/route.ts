@@ -13,8 +13,10 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { materialId, count, difficulty, weakTopics, previousQuestions, previousTopics } = await request.json()
-    // Get material from DB
+    // 1. Simplificamos los parámetros: solo necesitamos el ID, la cantidad y la dificultad.
+    const { materialId, count, difficulty } = await request.json()
+    
+    // Recuperar el material de la base de datos
     const { data: material } = await supabase
       .from('materials')
       .select('*')
@@ -24,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (!material) return NextResponse.json({ error: 'Material not found' }, { status: 404 })
 
-    // Extract text from PDF if not already done
+    // Extraer texto del PDF si no se ha hecho
     let extractedText = material.extracted_text
 
     if (!extractedText) {
@@ -39,70 +41,48 @@ export async function POST(request: NextRequest) {
       const { text } = await extractText(buffer, { mergePages: true })
       extractedText = text
 
-      // Save extracted text so we don't re-parse next time
+      // Guardar el texto extraído
       await supabase
         .from('materials')
         .update({ extracted_text: extractedText })
         .eq('id', materialId)
     }
 
-    // Truncate text to avoid token limits (~12000 chars is safe)
+    // Truncar para evitar límites de tokens (~12000 chars)
     const truncatedText = extractedText.slice(0, 12000)
 
-    // Build adaptive prompt
-    const weakTopicsLine = weakTopics?.length
-      ? `The student has struggled with these topics: ${weakTopics.join(', ')}. Include more questions on these.`
-      : ''
-
+    // Ajuste de dificultad
     const difficultyLine = difficulty <= 2
       ? 'Questions should be straightforward and test basic understanding.'
       : difficulty >= 4
       ? 'Questions should be challenging, testing deep understanding and application.'
       : 'Questions should be moderate difficulty, testing solid understanding.'
-    
-    const askedTopicsLine = previousQuestions?.length
-      ? `TOPICS ALREADY COVERED (pick a completely different topic):\n${[...new Set(previousTopics)].map((t: string, i: number) => `${i + 1}. ${t}`).join('\n')}`
-      : ''
-    
-    const previousQuestionsLine = previousQuestions?.length
-      ? `QUESTIONS ALREADY ASKED (do not repeat or rephrase):\n${previousQuestions.map((q: string, i: number) => `${i + 1}. ${q}`).join('\n')}`
-      : ''
-    
-    const randomInstruction = [
-      "Focus on the beginning of the material.",
-      "Focus on the middle sections of the material.",
-      "Focus on the final conclusions or summaries of the material.",
-      "Pick a minor but interesting detail from the text."
-    ][Math.floor(Math.random() * 4)];
 
-    const prompt = `You are a university professor creating a quiz with strict topic diversity rules.
+    // 2. Prompt optimizado para generar todo el quiz de una sola vez, sin repeticiones y en español
+    const prompt = `You are a university professor creating a comprehensive quiz.
     
-    ${randomInstruction}
-    
-    Based on the study material below, generate exactly ${count} multiple choice question.
+    Based on the study material below, generate exactly ${count} distinct multiple choice questions in a single response.
     
     ${difficultyLine}
-    ${weakTopicsLine}
-    ${askedTopicsLine}
-    ${previousQuestionsLine}
     
     STRICT RULES:
-    - You MUST choose a topic not already covered above
-    - Scan the entire material and pick a section that has NOT been asked about yet
-    - Each question must have exactly 4 options labeled A, B, C, D
-    - Only one option is correct
-    - Return ONLY valid JSON, no explanation, no markdown
+    - CRITICAL: All generated questions, options, and correct answers MUST be written entirely in Spanish (Español).
+    - Ensure the ${count} questions cover different parts and concepts from the entire material to avoid repetition.
+    - Each question must have exactly 4 options labeled A, B, C, D.
+    - Only one option is correct.
+    - Return ONLY valid JSON, no explanation, no markdown.
     
     Return this exact JSON structure:
     {
       "questions": [
         {
-          "question_text": "Question here?",
-          "options": ["A) Option one", "B) Option two", "C) Option three", "D) Option four"],
-          "correct_answer": "A) Option one",
-          "topic": "Topic name",
-          "difficulty": 3
+          "question_text": "¿Primera pregunta aquí?",
+          "options": ["A) Opción uno", "B) Opción dos", "C) Opción tres", "D) Opción cuatro"],
+          "correct_answer": "A) Opción uno",
+          "topic": "Nombre del tema",
+          "difficulty": ${difficulty || 3}
         }
+        // ... must generate exactly ${count} objects inside this array
       ]
     }
     
@@ -115,16 +95,16 @@ export async function POST(request: NextRequest) {
         input: {
           prompt,
           max_new_tokens: 4000,
-          temperature: 0.8,
+          temperature: 0.7, // Bajamos un poco la temperatura (de 0.8 a 0.7) para que el formato JSON sea más estricto y menos propenso a divagar
           system_prompt: "You are a strict JSON API. Respond ONLY with valid JSON. Do not use markdown format like ```json."
         }
       }
     )
 
-    // Replicate returns an array of strings — join them
+    // Replicate devuelve un array de strings — lo unimos
     const rawText = Array.isArray(output) ? output.join('') : String(output)
 
-    // Extract JSON from response
+    // Extraer el JSON de la respuesta usando RegEx
     const jsonMatch = rawText.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
       console.error('Raw output:', rawText)

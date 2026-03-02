@@ -19,7 +19,7 @@ export default async function DashboardLayout({
         <div style={styles.navInner}>
           <div style={styles.logoContainer}>
             <Image src={logo} width={70} height={70} alt='logo' />
-            <span className='font-medium'>Quiz <span className='font-black'>Fit</span></span>
+            <span className='font-medium'>Quizzes <span className='font-black'>Fit</span></span>
           </div>
           
           <div style={styles.navLinks}>

@@ -97,8 +97,7 @@ export default function QuizSetup({ material }: { material: Material }) {
 
         <div style={styles.infoBox}>
           <p style={styles.infoText}>
-            🎯 <strong>Modo adaptativo encendido</strong> — las preguntas se pondrán más fáciles o más difíciles en base a tu rendimiento en tiempo real.
-          </p>
+            🎯 <strong>Generación en bloque</strong> — Se generarán todas las preguntas de una sola vez analizando el material completo. El proceso puede tomar unos segundos extra al iniciar.          </p>
         </div>
 
         {error && <p style={styles.error}>{error}</p>}
