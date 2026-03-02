@@ -122,7 +122,7 @@ export default function QuizSession({
     } finally {
       setLoading(false)
     }
-  }, [quiz.material_id, quiz.id, attempt.id, supabase])
+  }, [quiz.material_id, quiz.id, attempt.id, supabase, askedQuestions, coveredTopics])
 
   useEffect(() => {
     fetchNextQuestion(performance)

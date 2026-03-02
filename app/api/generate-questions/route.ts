@@ -67,8 +67,17 @@ export async function POST(request: NextRequest) {
     const previousQuestionsLine = previousQuestions?.length
       ? `QUESTIONS ALREADY ASKED (do not repeat or rephrase):\n${previousQuestions.map((q: string, i: number) => `${i + 1}. ${q}`).join('\n')}`
       : ''
+    
+    const randomInstruction = [
+      "Focus on the beginning of the material.",
+      "Focus on the middle sections of the material.",
+      "Focus on the final conclusions or summaries of the material.",
+      "Pick a minor but interesting detail from the text."
+    ][Math.floor(Math.random() * 4)];
 
     const prompt = `You are a university professor creating a quiz with strict topic diversity rules.
+    
+    ${randomInstruction}
     
     Based on the study material below, generate exactly ${count} multiple choice question.
     
@@ -101,12 +110,13 @@ export async function POST(request: NextRequest) {
     ${truncatedText}`
 
     const output = await replicate.run(
-      "meta/meta-llama-3.1-405b-instruct",
+      "meta/meta-llama-3-70b-instruct",
       {
         input: {
           prompt,
-          max_tokens: 4000,
-          temperature: 0.7,
+          max_new_tokens: 4000,
+          temperature: 0.8,
+          system_prompt: "You are a strict JSON API. Respond ONLY with valid JSON. Do not use markdown format like ```json."
         }
       }
     )
