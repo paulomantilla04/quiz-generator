@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FaChartBar } from "react-icons/fa";
 
 interface Attempt {
   id: string;
@@ -55,7 +56,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
           <p style={styles.subtitle}>
             {attempts.length
               ? `${attempts.length} quiz${attempts.length > 1 ? "zes" : ""} completado${attempts.length > 1 ? "s" : ""}`
-              : "No quizzes completed yet"}
+              : "No hay ningún quiz completado aún."}
           </p>
         </div>
       </div>
@@ -222,7 +223,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
 
       {attempts.length === 0 && (
         <div style={styles.emptyState}>
-          <div style={styles.emptyIcon}>📊</div>
+          <div className="flex items-center justify-center text-6xl"><FaChartBar/></div>
           <h3 style={styles.emptyTitle}>Sin historial aún</h3>
           <p style={styles.emptyText}>
             Completa tu primer quiz para ver tu progreso aquí.

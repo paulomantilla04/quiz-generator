@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '../lib/supabase/server'
 import UploadButton from '@/components/UploadButton'
 import MaterialCard from '@/components/MaterialCard'
+import { FaNoteSticky } from "react-icons/fa6";
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
           <p style={styles.subtitle}>
             {materials?.length
               ? `Tienes ${materials.length} material${materials.length > 1 ? 's' : ''} de estudio. Listo para un quiz?`
-              : 'Upload your first PDF to get started.'}
+              : 'Sube tu primer PDF para empezar.'}
           </p>
         </div>
         <UploadButton />
@@ -44,10 +45,10 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div style={styles.empty}>
-          <div style={styles.emptyIcon}>📄</div>
+          <div className='flex items-center justify-center text-6xl'><FaNoteSticky/></div>
           <h3 style={styles.emptyTitle}>No hay materiales aún</h3>
           <p style={styles.emptyText}>
-            Sube algún PDF y generaremos un Quiz Adaptativo.
+            Sube algún PDF y generaremos un Quiz.
           </p>
         </div>
       )}
@@ -91,6 +92,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyIcon: {
     fontSize: '3rem',
+    textAlign: 'center',
     marginBottom: '1rem',
   },
   emptyTitle: {
