@@ -1,6 +1,5 @@
 'use client'
 
-// 1. Importamos AnimatePresence
 import { motion, Variants, AnimatePresence } from 'framer-motion'
 import UploadButton from '@/components/UploadButton'
 import MaterialCard from '@/components/MaterialCard'
@@ -14,26 +13,31 @@ const gridVariants: Variants = {
       staggerChildren: 0.1
     }
   },
-  // Agregamos un estado de salida
   exit: { 
     opacity: 0,
     transition: { duration: 0.2 }
   }
 }
 
+// 1. Agregamos un estado 'exit' individual para cada tarjeta y pulimos la entrada
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, scale: 0.9, y: 20 },
   show: { 
     opacity: 1, 
+    scale: 1,
     y: 0,
     transition: { type: "spring", stiffness: 300, damping: 24 }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.8,
+    transition: { duration: 0.2 }
   }
 }
 
 export default function DashboardClient({ firstName, materials }: { firstName: string, materials: any[] }) {
   return (
     <div style={styles.container}>
-      {/* Animación del Header */}
       <motion.div 
         style={styles.header}
         initial={{ opacity: 0, y: -20 }}
@@ -51,30 +55,40 @@ export default function DashboardClient({ firstName, materials }: { firstName: s
         <UploadButton />
       </motion.div>
 
-      {/* 2. Envolvemos la condición en AnimatePresence */}
+      {/* AnimatePresence EXTERNO: Alterna entre el Grid y el Estado Vacío */}
       <AnimatePresence mode="wait">
         {materials && materials.length > 0 ? (
           <motion.div 
-            key="grid" // 3. IMPORTANTÍSIMO: Agregamos key
+            key="grid"
             style={styles.grid}
             variants={gridVariants}
             initial="hidden"
             animate="show"
-            exit="exit" // Le decimos que use la variante de salida
+            exit="exit"
           >
-            {materials.map(material => (
-              <motion.div key={material.id} variants={cardVariants}>
-                <MaterialCard material={material} />
-              </motion.div>
-            ))}
+            {/* 2. AnimatePresence INTERNO: Maneja la entrada/salida de tarjetas INDIVIDUALES */}
+            <AnimatePresence mode="popLayout">
+              {materials.map(material => (
+                <motion.div 
+                  key={material.id} 
+                  layout // 3. EL TRUCO: 'layout' hace que las tarjetas se reacomoden suavemente al borrar una
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="show"
+                  exit="exit"
+                >
+                  <MaterialCard material={material} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </motion.div>
         ) : (
           <motion.div 
-            key="empty" // 3. IMPORTANTÍSIMO: Agregamos key
+            key="empty"
             style={styles.empty}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }} // 4. Agregamos animación de salida
+            exit={{ opacity: 0, scale: 0.9 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 20 }}
           >
             <div className='flex items-center justify-center text-6xl'>
