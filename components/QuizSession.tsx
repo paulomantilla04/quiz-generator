@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../app/lib/supabase/client";
+import { motion, AnimatePresence } from "framer-motion"; // 1. Importaciones de framer-motion
 
 interface Question {
   id?: string;
@@ -73,7 +74,6 @@ export default function QuizSession({
     setError("");
 
     try {
-      // 1. Verificar si ya hay preguntas generadas para este intento (por si recarga la página)
       const { data: existingQuestions } = await supabase
         .from("questions")
         .select("*")
@@ -87,7 +87,6 @@ export default function QuizSession({
         return;
       }
 
-      // 2. Si no existen, llamar a la API para generar TODAS de una vez
       const res = await fetch("/api/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,7 +100,6 @@ export default function QuizSession({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
 
-      // 3. Guardar todas las preguntas en la base de datos de un solo golpe
       const questionsToInsert = data.questions.map((q: Question) => ({
         quiz_id: quiz.id,
         attempt_id: attempt.id,
@@ -151,14 +149,12 @@ export default function QuizSession({
     const correct = option === currentQuestion.correct_answer;
     setIsCorrect(correct);
 
-    // Actualizar progreso
     const newPerformance = {
       ...performance,
       answeredCount: performance.answeredCount + 1,
     };
     setPerformance(newPerformance);
 
-    // Guardar respuesta en la BD
     if (currentQuestion.id) {
       await supabase.from("answers").insert({
         attempt_id: attempt.id,
@@ -168,7 +164,6 @@ export default function QuizSession({
       });
     }
 
-    // Actualizar progreso del intento
     await supabase
       .from("attempts")
       .update({ performance_data: newPerformance })
@@ -180,7 +175,6 @@ export default function QuizSession({
       await finishQuiz();
       return;
     }
-    // Avanzar a la siguiente pregunta localmente
     setCurrentIndex((prev) => prev + 1);
     setSelectedAnswer(null);
     setIsAnswered(false);
@@ -214,7 +208,13 @@ export default function QuizSession({
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
+      {/* Header Animado */}
+      <motion.div 
+        style={styles.header}
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
         <a href="/dashboard" style={styles.back}>
           ← Exit
         </a>
@@ -228,7 +228,7 @@ export default function QuizSession({
         >
           Quiz Mode
         </span>
-      </div>
+      </motion.div>
 
       <div style={styles.progressBar}>
         <div style={{ ...styles.progressFill, width: `${progress}%` }} />
@@ -242,106 +242,141 @@ export default function QuizSession({
           </span>
         </div>
 
-        {loading ? (
-          <div style={styles.loadingBox}>
-            <div style={styles.spinner} />
-            <p style={styles.loadingText}>
-              Generando todas tus preguntas (esto puede tomar unos segundos)...
-            </p>
-          </div>
-        ) : error ? (
-          <div style={styles.errorBox}>
-            <p style={styles.errorText}>{error}</p>
-            <button
-              onClick={() => fetchAllQuestions()}
-              style={styles.retryButton}
+        {/* AnimatePresence maneja la salida y entrada suave de componentes condicionales */}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              key="loading"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              style={styles.loadingBox}
             >
-              Intentar de nuevo
-            </button>
-          </div>
-        ) : currentQuestion ? (
-          <div style={styles.questionCard}>
-            <p style={styles.topicTag}>{currentQuestion.topic}</p>
-            <h2 style={styles.questionText}>{currentQuestion.question_text}</h2>
+              <div style={styles.spinner} />
+              <p style={styles.loadingText}>
+                Generando todas tus preguntas (esto puede tomar unos segundos)...
+              </p>
+            </motion.div>
+          ) : error ? (
+            <motion.div 
+              key="error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={styles.errorBox}
+            >
+              <p style={styles.errorText}>{error}</p>
+              <button
+                onClick={() => fetchAllQuestions()}
+                style={styles.retryButton}
+              >
+                Intentar de nuevo
+              </button>
+            </motion.div>
+          ) : currentQuestion ? (
+            <motion.div 
+              // La clave es el currentIndex. Cuando cambia, React/Framer saben que es un elemento nuevo y detonan la animación de salida/entrada
+              key={currentIndex} 
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              style={styles.questionCard}
+            >
+              <p style={styles.topicTag}>{currentQuestion.topic}</p>
+              <h2 style={styles.questionText}>{currentQuestion.question_text}</h2>
 
-            <div style={styles.options}>
-              {currentQuestion.options.map((option) => {
-                let bg = "var(--background)";
-                let border = "var(--card-border)";
-                let color = "var(--foreground)";
+              <div style={styles.options}>
+                {currentQuestion.options.map((option, i) => {
+                  let bg = "var(--background)";
+                  let border = "var(--card-border)";
+                  let color = "var(--foreground)";
 
-                if (isAnswered) {
-                  if (option === currentQuestion.correct_answer) {
-                    bg = "rgba(99, 255, 180, 0.1)";
-                    border = "var(--success)";
-                    color = "var(--success)";
-                  } else if (option === selectedAnswer && !isCorrect) {
-                    bg = "rgba(255, 107, 107, 0.1)";
-                    border = "var(--error)";
-                    color = "var(--error)";
+                  if (isAnswered) {
+                    if (option === currentQuestion.correct_answer) {
+                      bg = "rgba(99, 255, 180, 0.1)";
+                      border = "var(--success)";
+                      color = "var(--success)";
+                    } else if (option === selectedAnswer && !isCorrect) {
+                      bg = "rgba(255, 107, 107, 0.1)";
+                      border = "var(--error)";
+                      color = "var(--error)";
+                    }
+                  } else if (option === selectedAnswer) {
+                    border = "var(--primary)";
                   }
-                } else if (option === selectedAnswer) {
-                  border = "var(--primary)";
-                }
 
-                return (
-                  <button
-                    key={option}
-                    onClick={() => handleAnswer(option)}
-                    disabled={isAnswered}
+                  return (
+                    <motion.button
+                      key={option}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + (i * 0.1) }} // Las opciones entran en cascada
+                      whileHover={!isAnswered ? { scale: 1.01, x: 4 } : {}}
+                      whileTap={!isAnswered ? { scale: 0.98 } : {}}
+                      onClick={() => handleAnswer(option)}
+                      disabled={isAnswered}
+                      style={{
+                        ...styles.optionButton,
+                        background: bg,
+                        borderColor: border,
+                        color,
+                        cursor: isAnswered ? "default" : "pointer",
+                      }}
+                    >
+                      {option}
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Caja de feedback (Correcto / Incorrecto) animada */}
+              <AnimatePresence>
+                {isAnswered && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: "1.25rem" }}
                     style={{
-                      ...styles.optionButton,
-                      background: bg,
-                      borderColor: border,
-                      color,
-                      cursor: isAnswered ? "default" : "pointer",
+                      ...styles.feedback,
+                      background: isCorrect
+                        ? "rgba(99, 255, 180, 0.1)"
+                        : "rgba(255, 107, 107, 0.1)",
+                      borderColor: isCorrect ? "var(--success)" : "var(--error)",
                     }}
                   >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-
-            {isAnswered && (
-              <div
-                style={{
-                  ...styles.feedback,
-                  background: isCorrect
-                    ? "rgba(99, 255, 180, 0.1)"
-                    : "rgba(255, 107, 107, 0.1)",
-                  borderColor: isCorrect ? "var(--success)" : "var(--error)",
-                }}
-              >
-                <p
-                  style={{
-                    color: isCorrect ? "var(--success)" : "var(--error)",
-                    fontWeight: "600",
-                    marginBottom: "0.25rem",
-                  }}
-                >
-                  {isCorrect ? "✓ ¡Correcto!" : "✗ Incorrecto"}
-                </p>
-                {!isCorrect && (
-                  <p style={{ fontSize: "0.875rem", color: "var(--muted)" }}>
-                    Respuesta correcta: {currentQuestion.correct_answer}
-                  </p>
+                    <p
+                      style={{
+                        color: isCorrect ? "var(--success)" : "var(--error)",
+                        fontWeight: "600",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      {isCorrect ? "✓ ¡Correcto!" : "✗ Incorrecto"}
+                    </p>
+                    {!isCorrect && (
+                      <p style={{ fontSize: "0.875rem", color: "var(--muted)" }}>
+                        Respuesta correcta: {currentQuestion.correct_answer}
+                      </p>
+                    )}
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleNext}
+                      disabled={submitting}
+                      style={styles.nextButton}
+                    >
+                      {submitting
+                        ? "Finalizando..."
+                        : isLastQuestion
+                          ? "Ver Resultados →"
+                          : "Siguiente Pregunta →"}
+                    </motion.button>
+                  </motion.div>
                 )}
-                <button
-                  onClick={handleNext}
-                  disabled={submitting}
-                  style={styles.nextButton}
-                >
-                  {submitting
-                    ? "Finalizando..."
-                    : isLastQuestion
-                      ? "Ver Resultados →"
-                      : "Siguiente Pregunta →"}
-                </button>
-              </div>
-            )}
-          </div>
-        ) : null}
+              </AnimatePresence>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -451,14 +486,13 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: "10px",
     fontSize: "0.95rem",
     fontWeight: "500",
-    transition: "all 0.15s",
     lineHeight: "1.4",
   },
   feedback: {
-    marginTop: "1.25rem",
     padding: "1.25rem",
     borderRadius: "10px",
     border: "1px solid",
+    overflow: "hidden", // Necesario para que la animación de 'height' no muestre el contenido saliéndose
   },
   nextButton: {
     marginTop: "0.75rem",

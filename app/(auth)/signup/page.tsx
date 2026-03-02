@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '../../lib/supabase/client'
 import Image from 'next/image'
+import { motion } from 'framer-motion' // 1. Importamos framer-motion
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('')
@@ -45,8 +46,20 @@ export default function SignupPage() {
 
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+      {/* 2. Tarjeta principal animada */}
+      <motion.div 
+        style={styles.card}
+        initial={{ opacity: 0, y: 40 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        {/* Logo con efecto resorte (spring) */}
+        <motion.div 
+          style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 15 }}
+        >
           <Image 
             src="/logo.svg" 
             alt="Quiz Generator Logo" 
@@ -54,12 +67,34 @@ export default function SignupPage() {
             height={200} 
             priority
           />
-        </div>
-        <h1 style={styles.title}>Crea una cuenta</h1>
-        <p style={styles.subtitle}>Empieza a estudiar mejor hoy!</p>
+        </motion.div>
+
+        {/* Textos y campos en cascada */}
+        <motion.h1 
+          style={styles.title}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Crea una cuenta
+        </motion.h1>
+        
+        <motion.p 
+          style={styles.subtitle}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          Empieza a estudiar mejor hoy!
+        </motion.p>
 
         <form onSubmit={handleSignup} style={styles.form}>
-          <div style={styles.field}>
+          <motion.div 
+            style={styles.field}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             <label style={styles.label}>Nombre y Apellido</label>
             <input
               type="text"
@@ -71,9 +106,14 @@ export default function SignupPage() {
               onFocus={e => e.target.style.borderColor = 'var(--primary)'}
               onBlur={e => e.target.style.borderColor = 'var(--card-border)'}
             />
-          </div>
+          </motion.div>
 
-          <div style={styles.field}>
+          <motion.div 
+            style={styles.field}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             <label style={styles.label}>Email</label>
             <input
               type="email"
@@ -85,9 +125,14 @@ export default function SignupPage() {
               onFocus={e => e.target.style.borderColor = 'var(--primary)'}
               onBlur={e => e.target.style.borderColor = 'var(--card-border)'}
             />
-          </div>
+          </motion.div>
 
-          <div style={styles.field}>
+          <motion.div 
+            style={styles.field}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.7 }}
+          >
             <label style={styles.label}>Contraseña</label>
             <input
               type="password"
@@ -99,24 +144,47 @@ export default function SignupPage() {
               onFocus={e => e.target.style.borderColor = 'var(--primary)'}
               onBlur={e => e.target.style.borderColor = 'var(--card-border)'}
             />
-          </div>
+          </motion.div>
 
-          {error && <p style={styles.error}>{error}</p>}
+          {error && (
+            <motion.p 
+              style={styles.error}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              {error}
+            </motion.p>
+          )}
 
-          <button type="submit" disabled={loading} style={{
-            ...styles.button,
-            opacity: loading ? 0.7 : 1,
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}>
+          {/* Botón interactivo */}
+          <motion.button 
+            type="submit" 
+            disabled={loading} 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }} // <-- Un poco más de delay por el campo extra
+            whileHover={!loading ? { scale: 1.02 } : {}}
+            whileTap={!loading ? { scale: 0.98 } : {}}
+            style={{
+              ...styles.button,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? 'not-allowed' : 'pointer',
+            }}
+          >
             {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-          </button>
+          </motion.button>
         </form>
 
-        <p style={styles.footer}>
+        <motion.p 
+          style={styles.footer}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }} // <-- Footer aparece al final
+        >
           Ya tienes una cuenta?{' '}
           <Link href="/login" style={styles.link}>Inicia sesión</Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   )
 }
@@ -138,10 +206,6 @@ const styles: Record<string, React.CSSProperties> = {
     width: '100%',
     maxWidth: '420px',
     boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-  },
-  logo: {
-    fontSize: '2rem',
-    marginBottom: '1rem',
   },
   title: {
     fontSize: '1.75rem',
@@ -195,7 +259,8 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '1rem',
     fontWeight: '600',
     marginTop: '0.5rem',
-    transition: 'background 0.2s, transform 0.1s',
+    /* Solo dejamos transición para el background, motion se encarga del transform */
+    transition: 'background 0.2s',
   },
   footer: {
     textAlign: 'center',

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '../app/lib/supabase/client'
+import { motion } from 'framer-motion' // 1. Importamos Framer Motion
 
 interface Material {
   id: string
@@ -68,20 +69,60 @@ export default function QuizSetup({ material }: { material: Material }) {
 
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <a href="/dashboard" style={styles.back}>← Volver</a>
+      {/* 2. Tarjeta principal animada */}
+      <motion.div 
+        style={styles.card}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <motion.a 
+          href="/dashboard" 
+          style={styles.back}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          ← Volver
+        </motion.a>
 
-        <div style={styles.icon}>🧠</div>
-        <h1 style={styles.title}>Listo para el quiz?</h1>
-        <p style={styles.subtitle}>{material.title}</p>
+        
+        
+        <motion.h1 
+          style={styles.title}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Listo para el quiz?
+        </motion.h1>
+        
+        <motion.p 
+          style={styles.subtitle}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          {material.title}
+        </motion.p>
 
-        <div style={styles.section}>
+        <motion.div 
+          style={styles.section}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
           <label style={styles.label}>Número de preguntas</label>
           <div style={styles.options}>
-            {[5, 10, 20, 30].map(n => (
-              <button
+            {[5, 10, 20, 30].map((n, i) => (
+              <motion.button
                 key={n}
                 onClick={() => setQuestionCount(n)}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + (i * 0.1) }} // Los botones aparecen uno a uno
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 style={{
                   ...styles.optionButton,
                   background: questionCount === n ? 'var(--primary)' : 'var(--background)',
@@ -90,21 +131,40 @@ export default function QuizSetup({ material }: { material: Material }) {
                 }}
               >
                 {n}
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        <div style={styles.infoBox}>
+        <motion.div 
+          style={styles.infoBox}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
           <p style={styles.infoText}>
-            🎯 <strong>Generación en bloque</strong> — Se generarán todas las preguntas de una sola vez analizando el material completo. El proceso puede tomar unos segundos extra al iniciar.          </p>
-        </div>
+            <strong>Generación en bloque</strong> — Se generarán todas las preguntas de una sola vez analizando el material completo. El proceso puede tomar unos segundos extra al iniciar.
+          </p>
+        </motion.div>
 
-        {error && <p style={styles.error}>{error}</p>}
+        {error && (
+          <motion.p 
+            style={styles.error}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            {error}
+          </motion.p>
+        )}
 
-        <button
+        <motion.button
           onClick={handleStart}
           disabled={loading}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          whileHover={!loading ? { scale: 1.02 } : {}}
+          whileTap={!loading ? { scale: 0.98 } : {}}
           style={{
             ...styles.startButton,
             opacity: loading ? 0.7 : 1,
@@ -112,8 +172,8 @@ export default function QuizSetup({ material }: { material: Material }) {
           }}
         >
           {loading ? 'Configurando Quiz...' : 'Iniciar Quiz →'}
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     </div>
   )
 }
@@ -140,12 +200,13 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--muted)',
     textDecoration: 'none',
     fontSize: '0.875rem',
-    display: 'block',
+    display: 'inline-block', // Cambiado a inline-block para que la animación X funcione mejor
     marginBottom: '1.5rem',
   },
   icon: {
     fontSize: '2.5rem',
     marginBottom: '1rem',
+    display: 'inline-block', // Necesario para que la rotación funcione bien
   },
   title: {
     fontSize: '1.75rem',
@@ -178,7 +239,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '1rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s',
+    /* Quitamos transition de CSS, motion se encarga del hover */
   },
   infoBox: {
     background: 'rgba(108, 99, 255, 0.1)',
@@ -206,6 +267,6 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '1rem',
     fontSize: '1rem',
     fontWeight: '600',
-    transition: 'background 0.2s',
+    /* Quitamos transition de CSS, motion se encarga del hover */
   },
 }

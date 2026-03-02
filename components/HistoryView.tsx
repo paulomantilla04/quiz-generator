@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FaChartBar } from "react-icons/fa";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 
 interface Attempt {
   id: string;
@@ -22,6 +23,26 @@ interface Attempt {
     };
   };
 }
+
+// Variantes para animaciones en cascada
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 300, damping: 24 },
+  },
+};
 
 export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
   const [filter, setFilter] = useState<"all" | "good" | "bad">("all");
@@ -50,7 +71,12 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
+      <motion.div 
+        style={styles.header}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div>
           <h1 style={styles.title}>Historial</h1>
           <p style={styles.subtitle}>
@@ -59,38 +85,48 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
               : "No hay ningún quiz completado aún."}
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {attempts.length > 0 && (
         <>
-          {/* Stats row */}
-          <div style={styles.statsRow}>
-            <div style={styles.statCard}>
+          {/* Stats row con animación en cascada */}
+          <motion.div 
+            style={styles.statsRow}
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
+            <motion.div variants={fadeUp} style={styles.statCard}>
               <p style={styles.statLabel}>Quizzes tomados</p>
               <p style={styles.statValue}>{attempts.length}</p>
-            </div>
-            <div style={styles.statCard}>
+            </motion.div>
+            <motion.div variants={fadeUp} style={styles.statCard}>
               <p style={styles.statLabel}>Puntuación promedio</p>
               <p style={{ ...styles.statValue, color: scoreColor(avgScore) }}>
                 {avgScore}%
               </p>
-            </div>
-            <div style={styles.statCard}>
+            </motion.div>
+            <motion.div variants={fadeUp} style={styles.statCard}>
               <p style={styles.statLabel}>Mejor puntuación</p>
               <p style={{ ...styles.statValue, color: scoreColor(bestScore) }}>
                 {bestScore}%
               </p>
-            </div>
-            <div style={styles.statCard}>
+            </motion.div>
+            <motion.div variants={fadeUp} style={styles.statCard}>
               <p style={styles.statLabel}>Materiales estudiados</p>
               <p style={styles.statValue}>
                 {new Set(attempts.map((a) => a.quizzes?.materials?.id)).size}
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Score timeline */}
-          <div style={styles.timelineCard}>
+          <motion.div 
+            style={styles.timelineCard}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
             <p style={styles.timelineTitle}>Historial de puntuación</p>
             <div style={styles.chart}>
               {[...attempts].reverse().map((attempt, i) => {
@@ -99,10 +135,13 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                   <div key={attempt.id} style={styles.barWrapper}>
                     <div style={styles.barLabel}>{attempt.score}%</div>
                     <div style={styles.barTrack}>
-                      <div
+                      {/* Animación individual para cada barra del gráfico */}
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height }}
+                        transition={{ duration: 0.6, delay: 0.4 + (i * 0.05), ease: "easeOut" }}
                         style={{
                           ...styles.bar,
-                          height,
                           background: scoreColor(attempt.score),
                         }}
                       />
@@ -112,10 +151,15 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
           {/* Filter */}
-          <div style={styles.filterRow}>
+          <motion.div 
+            style={styles.filterRow}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
             {(["all", "good", "bad"] as const).map((f) => (
               <button
                 key={f}
@@ -135,95 +179,121 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                     : "✗ Reprobados (<70%)"}
               </button>
             ))}
-          </div>
+          </motion.div>
 
           {/* Attempt list */}
-          <div style={styles.list}>
-            {filtered.map((attempt) => {
-              const date = new Date(attempt.completed_at).toLocaleDateString(
-                "en-US",
-                {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                },
-              );
+          <motion.div 
+            style={styles.list}
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.map((attempt) => {
+                const date = new Date(attempt.completed_at).toLocaleDateString(
+                  "en-US",
+                  {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  },
+                );
 
-              return (
-                <div key={attempt.id} style={styles.attemptCard}>
-                  <div style={styles.attemptLeft}>
-                    <div
-                      style={{
-                        ...styles.scoreBadge,
-                        color: scoreColor(attempt.score),
-                        borderColor: scoreColor(attempt.score),
-                        background: `${scoreColor(attempt.score)}18`,
-                      }}
-                    >
-                      {attempt.score}%
+                return (
+                  <motion.div 
+                    layout /* Esto hace que se reacomoden suavemente al filtrar */
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    key={attempt.id} 
+                    style={styles.attemptCard}
+                  >
+                    <div style={styles.attemptLeft}>
+                      <div
+                        style={{
+                          ...styles.scoreBadge,
+                          color: scoreColor(attempt.score),
+                          borderColor: scoreColor(attempt.score),
+                          background: `${scoreColor(attempt.score)}18`,
+                        }}
+                      >
+                        {attempt.score}%
+                      </div>
+                      <div>
+                        <p style={styles.attemptTitle}>
+                          {attempt.quizzes?.materials?.title ??
+                            "Material desconocido"}
+                        </p>
+                        <p style={styles.attemptMeta}>
+                          {attempt.total_questions} questions ·{" "}
+                          {difficultyLabel(
+                            attempt.performance_data?.currentDifficulty ?? 3,
+                          )}{" "}
+                          · {date}
+                        </p>
+                        {attempt.performance_data?.weakTopics?.length > 0 && (
+                          <div style={styles.weakTopics}>
+                            {attempt.performance_data.weakTopics.map((t) => (
+                              <span key={t} style={styles.weakTag}>
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <p style={styles.attemptTitle}>
-                        {attempt.quizzes?.materials?.title ??
-                          "Material desconocido"}
-                      </p>
-                      <p style={styles.attemptMeta}>
-                        {attempt.total_questions} questions ·{" "}
-                        {difficultyLabel(
-                          attempt.performance_data?.currentDifficulty ?? 3,
-                        )}{" "}
-                        · {date}
-                      </p>
-                      {attempt.performance_data?.weakTopics?.length > 0 && (
-                        <div style={styles.weakTopics}>
-                          {attempt.performance_data.weakTopics.map((t) => (
-                            <span key={t} style={styles.weakTag}>
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                    <div style={styles.attemptActions}>
+                      <a
+                        href={
+                          "/quiz/" +
+                          attempt.quizzes?.id +
+                          "/results/" +
+                          attempt.id
+                        }
+                        style={styles.reviewButton}
+                      >
+                        Revisar
+                      </a>
+                      <a
+                        href={
+                          "/quiz/new?material=" + attempt.quizzes?.materials?.id
+                        }
+                        style={styles.retakeButton}
+                      >
+                        Hacer de nuevo
+                      </a>
                     </div>
-                  </div>
-                  <div style={styles.attemptActions}>
-                    <a
-                      href={
-                        "/quiz/" +
-                        attempt.quizzes?.id +
-                        "/results/" +
-                        attempt.id
-                      }
-                      style={styles.reviewButton}
-                    >
-                      Revisar
-                    </a>
-                    <a
-                      href={
-                        "/quiz/new?material=" + attempt.quizzes?.materials?.id
-                      }
-                      style={styles.retakeButton}
-                    >
-                      Hacer de nuevo
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
 
             {filtered.length === 0 && (
-              <div style={styles.empty}>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={styles.empty}
+              >
                 <p style={styles.emptyText}>Ningún quiz coincide con este filtro.</p>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         </>
       )}
 
       {attempts.length === 0 && (
-        <div style={styles.emptyState}>
-          <div className="flex items-center justify-center text-6xl"><FaChartBar/></div>
+        <motion.div 
+          style={styles.emptyState}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        >
+          <div className="flex items-center justify-center text-6xl">
+            <FaChartBar/>
+          </div>
           <h3 style={styles.emptyTitle}>Sin historial aún</h3>
           <p style={styles.emptyText}>
             Completa tu primer quiz para ver tu progreso aquí.
@@ -231,7 +301,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
           <a href="/dashboard" style={styles.dashboardLink}>
             Ir al dashboard →
           </a>
-        </div>
+        </motion.div>
       )}
     </div>
   );
@@ -321,7 +391,7 @@ const styles: Record<string, React.CSSProperties> = {
   bar: {
     width: "100%",
     borderRadius: "4px 4px 0 0",
-    transition: "height 0.3s ease",
+    transition: "background 0.3s ease", // Quitamos 'height' de CSS normal porque Framer se encarga
     minHeight: "4px",
   },
   barIndex: {

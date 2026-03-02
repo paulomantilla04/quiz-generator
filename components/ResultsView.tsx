@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { motion, Variants } from 'framer-motion'
 
 interface Question {
   id: string
@@ -35,6 +36,26 @@ interface Quiz {
   materials: { id: string; title: string }
 }
 
+// Variantes para la animación en cascada de la lista de preguntas
+const listVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1, // Tiempo entre cada pregunta
+    },
+  },
+}
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 24 },
+  },
+}
+
 export default function ResultsView({
   attempt,
   quiz,
@@ -65,58 +86,130 @@ export default function ResultsView({
 
   return (
     <div style={styles.container}>
-      {/* Score card */}
-      <div style={styles.scoreCard}>
-        <div style={styles.emoji}>{scoreEmoji}</div>
-        <h1 style={styles.title}>Quiz Completado!</h1>
-        <p style={styles.subtitle}>{quiz.title}</p>
+      {/* Score card principal animada */}
+      <motion.div 
+        style={styles.scoreCard}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <motion.div 
+          style={styles.emoji}
+          initial={{ scale: 0, rotate: -45 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 12 }}
+        >
+          {scoreEmoji}
+        </motion.div>
+        
+        <motion.h1 
+          style={styles.title}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          Quiz Completado!
+        </motion.h1>
+        
+        <motion.p 
+          style={styles.subtitle}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          {quiz.title}
+        </motion.p>
 
-        <div style={{ ...styles.scoreBig, color: scoreColor }}>
+        {/* Puntuación animada */}
+        <motion.div 
+          style={{ ...styles.scoreBig, color: scoreColor }}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 15 }}
+        >
           {score}%
-        </div>
+        </motion.div>
 
-        <p style={styles.scoreDetail}>
+        <motion.p 
+          style={styles.scoreDetail}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
           {correct} de {total} correctas
-        </p>
+        </motion.p>
 
         {attempt.performance_data.weakTopics.length > 0 && (
-          <div style={styles.weakBox}>
+          <motion.div 
+            style={styles.weakBox}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
             <p style={styles.weakTitle}>📌 Temas revisados:</p>
             <div style={styles.weakTags}>
-              {attempt.performance_data.weakTopics.map(topic => (
-                <span key={topic} style={styles.weakTag}>{topic}</span>
+              {attempt.performance_data.weakTopics.map((topic, i) => (
+                <motion.span 
+                  key={topic} 
+                  style={styles.weakTag}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.8 + (i * 0.1) }}
+                >
+                  {topic}
+                </motion.span>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
-        <div style={styles.actions}>
-          <button
+        <motion.div 
+          style={styles.actions}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => router.push(`/quiz/new?material=${quiz.material_id}`)}
             style={styles.primaryButton}
           >
             Retomar Quiz
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => router.push('/dashboard')}
             style={styles.secondaryButton}
           >
             Dashboard
-          </button>
-        </div>
-      </div>
+          </motion.button>
+        </motion.div>
+      </motion.div>
 
-      {/* Question review */}
-      <div style={styles.reviewSection}>
+      {/* Question review con animación en cascada */}
+      <motion.div 
+        style={styles.reviewSection}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }} // Empieza después de que la tarjeta de puntuación termine
+      >
         <h2 style={styles.reviewTitle}>Revisión de preguntas</h2>
-        <div style={styles.questionList}>
+        <motion.div 
+          style={styles.questionList}
+          variants={listVariants}
+          initial="hidden"
+          animate="show"
+        >
           {questions.map((q, i) => {
             const answer = answerMap.get(q.id)
             const wasCorrect = answer?.is_correct ?? false
 
             return (
-              <div
+              <motion.div
                 key={q.id}
+                variants={cardVariants}
                 style={{
                   ...styles.questionCard,
                   borderColor: wasCorrect
@@ -150,11 +243,11 @@ export default function ResultsView({
                     </p>
                   </div>
                 )}
-              </div>
+              </motion.div>
             )
           })}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }
@@ -176,6 +269,7 @@ const styles: Record<string, React.CSSProperties> = {
   emoji: {
     fontSize: '3rem',
     marginBottom: '1rem',
+    display: 'inline-block', // Necesario para que la rotación de framer-motion funcione bien en emojis
   },
   title: {
     fontSize: '1.75rem',
@@ -192,6 +286,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: '800',
     lineHeight: 1,
     marginBottom: '0.5rem',
+    display: 'inline-block', // Ayuda a que el escalado sea fluido desde el centro
   },
   scoreDetail: {
     color: 'var(--muted)',
@@ -223,6 +318,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '0.2rem 0.75rem',
     fontSize: '0.8rem',
     color: '#ffd963',
+    display: 'inline-block',
   },
   actions: {
     display: 'flex',

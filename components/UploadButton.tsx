@@ -75,7 +75,7 @@ export default function UploadButton() {
         cursor: uploading ? 'not-allowed' : 'pointer',
         pointerEvents: uploading ? 'none' : 'auto',
       }}>
-        {uploading ? '⏳ Subiendo...' : '+ Subir PDF'}
+        {uploading ? 'Subiendo...' : '+ Subir PDF'}
       </label>
       {error && <p style={styles.error}>{error}</p>}
     </div>
