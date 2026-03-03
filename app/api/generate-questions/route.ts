@@ -7,6 +7,26 @@ const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN!,
 })
 
+// In-memory rate limiter: 5 requests per minute per user
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 5
+const RATE_WINDOW_MS = 60 * 1000
+
+function isRateLimited(userId: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(userId)
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_WINDOW_MS })
+    return false
+  }
+
+  if (entry.count >= RATE_LIMIT) return true
+
+  entry.count++
+  return false
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -14,6 +34,10 @@ export async function POST(request: NextRequest) {
     
     if (!user) {
       return NextResponse.json({ error: 'No autorizado. Inicia sesión para continuar.' }, { status: 401 })
+    }
+
+    if (isRateLimited(user.id)) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes. Espera un momento antes de generar más preguntas.' }, { status: 429 })
     }
 
     const { materialId, count, difficulty } = await request.json()
