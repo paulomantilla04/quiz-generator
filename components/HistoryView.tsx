@@ -190,16 +190,8 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
           >
             <AnimatePresence mode="popLayout">
               {filtered.map((attempt) => {
-                const date = new Date(attempt.completed_at).toLocaleDateString(
-                  "en-US",
-                  {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  },
-                );
+                const d = new Date(attempt.completed_at);
+                const date = `${d.toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })} · ${d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}`;
 
                 return (
                   <motion.div 
@@ -227,7 +219,7 @@ export default function HistoryView({ attempts }: { attempts: Attempt[] }) {
                           {attempt.quizzes?.materials?.title ??
                             "Material desconocido"}
                         </p>
-                        <p style={styles.attemptMeta}>
+                        <p style={styles.attemptMeta} suppressHydrationWarning>
                           {attempt.total_questions} questions ·{" "}
                           {difficultyLabel(
                             attempt.performance_data?.currentDifficulty ?? 3,
